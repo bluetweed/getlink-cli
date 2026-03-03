@@ -2,7 +2,7 @@
 
 A cross-platform command-line tool written in Rust to extract and print all relevant sub-links from a target web page.
 
-It fetches the provided URL, parses the HTML, and prints all the `href` links that belong to the same host and share the root path prefix. The output is a newline-separated list of URLs, sorted alphabetically, making it easy to pipe to other commands or save to a file.
+It fetches the provided URL, parses the HTML, and prints all the `href` links that belong to the same host and share the root path prefix. The output is a newline-separated list of URLs, sorted alphabetically. **The results are also automatically copied to your system clipboard.**
 
 ## Features
 

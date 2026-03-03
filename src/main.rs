@@ -1,8 +1,8 @@
 use clap::Parser;
-// Removed unused import
 use scraper::{Html, Selector};
 use std::collections::HashSet;
 use url::Url;
+use arboard::Clipboard;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -78,8 +78,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut sorted_links: Vec<String> = collected_links.into_iter().collect();
     sorted_links.sort();
     
-    for link in sorted_links {
-        println!("{}", link);
+    // 결과 문자열 생성 및 클립보드 복사
+    let output = sorted_links.join("\n");
+    print!("{}\n", output);
+
+    if let Ok(mut clipboard) = Clipboard::new() {
+        if let Err(e) = clipboard.set_text(output) {
+            eprintln!("Failed to copy to clipboard: {}", e);
+        } else {
+            println!("(Copied to clipboard!)");
+        }
+    } else {
+        eprintln!("Failed to initialize clipboard");
     }
 
     Ok(())
