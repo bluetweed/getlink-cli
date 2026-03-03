@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: getlink-linux-x86_64
+            asset_name: getlink-linux-x86_64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: getlink-macos-arm64
+            asset_name: getlink-macos-arm64
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: getlink-macos-x86_64
+            asset_name: getlink-macos-x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: getlink-windows-x86_64.exe
+            asset_name: getlink-windows-x86_64.exe
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build Target
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Prepare Artifact (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          mv target/${{ matrix.target }}/release/getlink-cli getlink
+          tar -czvf ${{ matrix.artifact_name }}.tar.gz getlink README.md
+          echo "ASSET_PATH=${{ matrix.artifact_name }}.tar.gz" >> $GITHUB_ENV
+
+      - name: Prepare Artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          mv target/${{ matrix.target }}/release/getlink-cli.exe getlink.exe
+          7z a ${{ matrix.artifact_name }}.zip getlink.exe README.md
+          echo "ASSET_PATH=${{ matrix.artifact_name }}.zip" >> $GITHUB_ENV
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.ASSET_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
