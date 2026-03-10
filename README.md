@@ -21,7 +21,7 @@ You can download pre-compiled binaries for your operating system from the [Relea
 Make sure you have [Rust and Cargo](https://rustup.rs/) installed, then:
 
 ```bash
-git clone https://github.com/Taery/getlink-cli.git
+git clone https://github.com/bluetweed/getlink-cli.git
 cd getlink-cli
 cargo install --path .
 ```
